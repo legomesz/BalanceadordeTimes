@@ -1,3 +1,5 @@
+import itertools
+
 def calcular_media_habilidade(time):
     return sum(jogador['habilidade'] for jogador in time) / len(time)
 
@@ -9,15 +11,17 @@ def balancear_times(jogadores, num_times):
     
     grupos = [jogadores[i::num_times] for i in range(num_times)]
     
-    desvios = [sum(abs(jogador['habilidade'] - media_habilidade) for jogador in grupo) for grupo in grupos]
-    
-    melhor_combinacao = min(itertools.permutations(range(num_times)), key=lambda comb: sum(abs(desvios[i] - desvios[comb[i]]) for i in range(num_times)))
+    melhor_combinacao = min(itertools.permutations(range(num_times)), key=lambda comb: avaliar_combinacao(comb, grupos, media_habilidade))
     
     times_balanceados = [[] for _ in range(num_times)]
     for i, grupo in enumerate(grupos):
         times_balanceados[melhor_combinacao[i]].extend(grupo)
     
     return times_balanceados
+
+def avaliar_combinacao(comb, grupos, media_habilidade):
+    desvios = [sum(abs(jogador['habilidade'] - media_habilidade) for jogador in grupo) for grupo in grupos]
+    return sum(abs(desvios[i] - desvios[comb[i]]) for i in range(len(comb)))
 
 def obter_dados_jogador():
     nome = input("Nome: ")
